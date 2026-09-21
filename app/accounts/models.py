@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 
+from art.models import Art
+
 class UserManager(BaseUserManager):
     
     def create_user(self, phone):
@@ -30,6 +32,9 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=50, null=True)
     phone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True, null=True)
+    
+    favorite_arts = models.ManyToManyField(Art, related_name='favorited_by', blank=True
+)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

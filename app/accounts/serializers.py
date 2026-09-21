@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import User
-
+from art.models import Art
 
 class ProfileSerializer(serializers.ModelSerializer):
 
@@ -20,20 +20,19 @@ class RequestOTPSerializer(serializers.Serializer):
     
     phone = serializers.RegexField(regex=r"^09\d{9}$",
         error_messages={
-            "invalid": "فرمت به درستی وارد نشده است، لطفا از اعداد انگلیسی استفاده کنید"
-        })
-    
+            "invalid": "فرمت به درستی وارد نشده است، لطفا از اعداد انگلیسی استفاده کنید"})
 
 class VerifyOTPSerializer(serializers.Serializer):
     phone = serializers.RegexField(
         regex=r"^09\d{9}$",
-        error_messages={
-            "invalid": "فرمت به درستی وارد نشده است، لطفا از اعداد انگلیسی استفاده کنید"
-            }
-    )
+        error_messages={"invalid": "فرمت به درستی وارد نشده است، لطفا از اعداد انگلیسی استفاده کنید"})
+    
     otp = serializers.RegexField(
         regex=r"^\d{6}$",
-        error_messages={
-            "invalid":  "کد یکبار مصرف نادرست است یا منقضی شده است"
-        }
-    )
+        error_messages={"invalid":  "کد یکبار مصرف نادرست است یا منقضی شده است"})
+    
+
+class FavoriteArtsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Art
+        fields = ['id', 'name', 'slug', 'image', 'artist']

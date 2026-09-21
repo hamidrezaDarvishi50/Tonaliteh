@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Art, Artist, Category
-from .serializers import ArtistSerializer, ArtSerializer, CategorySerializer
+from .serializers import ArtistSerializer, ArtSerializer, CategorySerializer, ArtistِDetailSerializer, CategoryDetailSerializer
 from accounts.authentication import user_authenticate
 
 class ArtistListView(APIView):
@@ -39,7 +39,7 @@ class ArtistDetailView(APIView):
     
     def get(self, request: Request, slug):
         artist = self.get_object(slug)
-        serializer = ArtistSerializer(artist)
+        serializer = ArtistِDetailSerializer(artist)
         if artist is None:
             return Response({"detail": "Artist not found."}, status.HTTP_404_NOT_FOUND)
         return Response(serializer.data, status.HTTP_200_OK)
@@ -105,7 +105,7 @@ class CategoryDetailView(APIView):
         if category is None:
             return Response({"detail": "Category not found."}, status.HTTP_404_NOT_FOUND)
 
-        serializer = CategorySerializer(category)
+        serializer = CategoryDetailSerializer(category)
         return Response(serializer.data, status.HTTP_200_OK)
         
     def put(self, request: Request, slug):
@@ -157,12 +157,46 @@ class ArtListView(APIView):
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class ArtDetailView(APIView):
-    def get(request: Request):
-        pass
     
-    def put(request: Request):
-        pass
+    def get_object(self, slug):
+        try:
+            return Art.objects.get(slug=slug)
+        except Art.DoesNotExist:
+            return None
     
-    def delete(request: Request):
-        pass
-    
+    def get(self, request: Request, slug):
+        art = self.get_object(slug)
+        
+        if art is None:
+            return Response({"detail":"Art not found"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = ArtSerializer(art)
+        return Response(serializer.data, status.HTTP_200_OK)
+        
+    def put(self, request: Request, slug):
+        
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail":"Admin access required"}, status.HTTP_403_FORBIDDEN)
+
+        art = self.get_object(slug)
+        if art is None:
+            return Response({"detail":"Art not found"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = ArtSerializer(art, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail":"Art is successfully updated"}, status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request: Request, slug):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail":"Admin access required"}, status.HTTP_403_FORBIDDEN)
+
+        art = self.get_object(slug)
+        if art is None:
+            return Response({"detail":"Art not found"}, status.HTTP_404_NOT_FOUND)
+
+        art.delete()
+        return Response({"detail":"Art deleted successfully."}, status.HTTP_200_OK)

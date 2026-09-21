@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProfileSerializer, RequestOTPSerializer, VerifyOTPSerializer, ProfileUpdateSerializer
+from .serializers import ProfileSerializer, RequestOTPSerializer, VerifyOTPSerializer, ProfileUpdateSerializer, FavoriteArtsSerializer
 
 from .authentication import user_authenticate
 
@@ -16,6 +16,8 @@ from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from art.models import Art
 
 
 class ProfileView(APIView):
@@ -102,3 +104,38 @@ class LogoutView(APIView):
             return Response(
                 {"detail": "رفرش توکنت خرابه"},
                 status=status.HTTP_400_BAD_REQUEST)
+
+
+class FavoriteArtsView(APIView):
+
+    def get(self, request):
+        user = user_authenticate(request)
+
+        arts = user.favorite_arts.all()
+        serializer = FavoriteArtsSerializer(arts, many=True)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request, slug):
+        user = user_authenticate(request)
+
+        try:
+            art = Art.objects.get(slug=slug)
+        except Art.DoesNotExist:
+            return Response({"detail": "Art not found."}, status.HTTP_404_NOT_FOUND)
+
+        user.favorite_arts.add(art)
+
+        return Response({"detail": "Art added to favorites."}, status.HTTP_200_OK)
+
+    def delete(self, request, slug):
+        user = user_authenticate(request)
+
+        try:
+            art = Art.objects.get(slug=slug)
+        except Art.DoesNotExist:
+            return Response({"detail": "Art not found."}, status.HTTP_404_NOT_FOUND)
+
+        user.favorite_arts.remove(art)
+
+        return Response({"detail": "Art removed from favorites."}, status.HTTP_200_OK)

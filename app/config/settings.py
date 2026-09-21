@@ -147,8 +147,6 @@ CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 AUTH_USER_MODEL = 'accounts.User'
 
-
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -176,9 +174,10 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'accounts.User'
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Task Manager API',
-    'DESCRIPTION': 'API documentation for Task Manager',
+    'TITLE': 'Tonaliteh APi',
+    'DESCRIPTION': 'Yasamin salam be to az door az tarafe aria va sina va man',
     'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 MEDIA_ROOT = BASE_DIR / "media"

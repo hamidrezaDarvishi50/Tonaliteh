@@ -36,6 +36,7 @@ class Art(models.Model):
     image = models.ImageField(upload_to="arts/")
     width = models.PositiveIntegerField()
     height = models.PositiveIntegerField()
+    released_year = models.PositiveIntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
