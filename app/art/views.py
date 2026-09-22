@@ -39,9 +39,10 @@ class ArtistDetailView(APIView):
     
     def get(self, request: Request, slug):
         artist = self.get_object(slug)
-        serializer = ArtistِDetailSerializer(artist)
         if artist is None:
             return Response({"detail": "Artist not found."}, status.HTTP_404_NOT_FOUND)
+        
+        serializer = ArtistِDetailSerializer(artist)
         return Response(serializer.data, status.HTTP_200_OK)
     
     def put(self, request: Request, slug):
