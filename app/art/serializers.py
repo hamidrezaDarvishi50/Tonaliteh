@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Art, Artist, Category
+from .models import Art, Artist, Category, Frame, Passepartout
 
 class ArtSerializer(serializers.ModelSerializer):
     artist = serializers.SlugRelatedField(slug_field='name', queryset=Artist.objects.all())
@@ -41,7 +41,7 @@ class ArtistِDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'bio', 'image', 'created_at','arts']
         read_only_fields = ['slug']
         
-        
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -56,3 +56,15 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'image', 'arts']
         read_only_fields = ['slug']
 
+
+
+class FrameSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Frame
+        fields = ['id', 'title', 'description', 'square_image', 'corner_image', 'horizontal_image', 'vertical_image', 'order', 'width', 'price']
+
+class PassepartoutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Passepartout
+        fields = ['id', 'distance']

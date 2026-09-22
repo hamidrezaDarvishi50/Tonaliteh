@@ -45,3 +45,18 @@ class Art(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+
+class Frame(models.Model):
+    title = models.TextField(max_length=255)
+    description = models.TextField(blank=True)
+    square_image = models.ImageField(upload_to="frames/")
+    corner_image = models.ImageField(upload_to="frames/")
+    horizontal_image = models.ImageField(upload_to="frames/")
+    vertical_image = models.ImageField(upload_to="frames/")
+    order = models.IntegerField()
+    width = models.PositiveIntegerField()
+    price = models.PositiveIntegerField()
+
+class Passepartout(models.Model):
+    distance = models.IntegerField(unique=True)
+

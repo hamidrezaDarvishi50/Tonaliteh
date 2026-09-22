@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ArtistListView, ArtistDetailView, ArtListView, ArtDetailView, CategoryListView, CategoryDetailView
+from .views import *
 
 urlpatterns = [
     path("artists/", ArtistListView.as_view(), name="artists"),
@@ -10,4 +10,10 @@ urlpatterns = [
     
     path("arts/", ArtListView.as_view(), name="arts"),
     path("arts/<slug:slug>/", ArtDetailView.as_view()),
+    
+    path("frame/", FrameListView.as_view(), name="frames"),
+    path("frame/<int:pk>/", FrameDetailView.as_view()),
+    
+    path("passepartout/", PassepartoutListView.as_view(), name="passepartouts"),
+    path("passepartout/<int:pk>/", PassepartoutDetailView.as_view())
 ]

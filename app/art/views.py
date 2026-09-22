@@ -6,8 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Art, Artist, Category
-from .serializers import ArtistSerializer, ArtSerializer, CategorySerializer, ArtistِDetailSerializer, CategoryDetailSerializer
+from .models import *
+from .serializers import *
 from accounts.authentication import user_authenticate
 
 class ArtistListView(APIView):
@@ -55,7 +55,7 @@ class ArtistDetailView(APIView):
         if artist is None:
             return Response({"detail": "Artist not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = ArtistSerializer(Artist, data=request.data)
+        serializer = ArtistSerializer(artist, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Artist is successfully updated"}, status.HTTP_201_CREATED)
@@ -201,3 +201,139 @@ class ArtDetailView(APIView):
 
         art.delete()
         return Response({"detail":"Art deleted successfully."}, status.HTTP_200_OK)
+
+    
+class FrameListView(APIView):
+
+    def get(self, request: Request):
+        
+        frames = Frame.objects.all().order_by('order')
+        serializer = FrameSerializer(frames, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request: Request):
+        
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        serializer = FrameSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail":"قاب با موفقیت اضافه شد"}, status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
+class FrameDetailView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Frame.objects.get(pk=pk)
+        except Frame.DoesNotExist:
+            return None
+    
+    def get(self, request:Request, pk):
+        frame = self.get_object(pk)
+        if frame is None:
+            return Response({"detail": "قاب پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = FrameSerializer(frame)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def put(self, request: Request, pk):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        frame = self.get_object(pk)
+        if frame is None:
+            return Response({"detail": "قاب پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = FrameSerializer(frame, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "قاب با موفقیت ویرایش شد"}, status.HTTP_200_OK)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request: Request, pk):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        frame = self.get_object(pk)
+        if frame is None:
+            return Response({"detail": "قاب پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        frame.delete()
+
+        return Response({"detail": "قاب با موفقیت حذف شد"}, status.HTTP_200_OK)
+
+
+class PassepartoutListView(APIView):
+
+    def get(self, request: Request):
+        passepartouts = Passepartout.objects.all().order_by('distance')
+        serializer = PassepartoutSerializer(passepartouts, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request: Request):
+        
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        serializer = PassepartoutSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"datail":"پاسپارتو با موفقیت اضافه شد"}, status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
+class PassepartoutDetailView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Passepartout.objects.get(pk=pk)
+        except Passepartout.DoesNotExist:
+            return None
+
+    def get(self, request: Request, pk):
+        passepartout = Passepartout.objects.get(pk=pk)
+        if passepartout is None:
+            return Response({"detail": "پاسپارتو پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = PassepartoutSerializer(passepartout)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def put(self, request: Request, pk):
+        
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        passepartout = Passepartout.objects.get(pk=pk)
+        if passepartout is None:
+            return Response({"detail": "پاسپارتو پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = PassepartoutSerializer(passepartout, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request: Request, pk):
+        
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        passepartout = Passepartout.objects.get(pk=pk)
+        if passepartout is None:
+            return Response({"detail": "پاسپارتو پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        passepartout.delete()
+        return Response({"detail": "پاسپارتو با موفقیت حذف شد"}, status.HTTP_200_OK)
