@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import ProfileSerializer, RequestOTPSerializer, VerifyOTPSerializer, ProfileUpdateSerializer, FavoriteArtsSerializer
+from .serializers import *
 
 from .authentication import user_authenticate
 
@@ -139,3 +139,47 @@ class FavoriteArtsView(APIView):
         user.favorite_arts.remove(art)
 
         return Response({"detail": "Art removed from favorites."}, status.HTTP_200_OK)
+    
+
+
+class AddressView(APIView):
+
+    def get(self, request: Request):
+        user = user_authenticate(request)
+        addresses = Address.objects.filter(user=user)
+        serializer = AddressSerializer(addresses, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request: Request):
+        user = user_authenticate(request)
+        serializer = AddressSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user)
+        return Response({"detail":"آدرس شما اضافه شد"}, status.HTTP_201_CREATED)
+
+
+class AddressDetailView(APIView):
+
+    def patch(self, request: Request, pk):
+        user = user_authenticate(request)
+
+        try:
+            address = Address.objects.get(pk=pk, user=user)
+        except Address.DoesNotExist:
+            return Response({"detail": "Address not found."}, status.HTTP_404_NOT_FOUND)
+
+        serializer = AddressSerializer(address, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def delete(self, request: Request, pk):
+        user = user_authenticate(request)
+
+        try:
+            address = Address.objects.get(pk=pk, user=user)
+        except Address.DoesNotExist:
+            return Response({"detail": "Address not found."}, status.HTTP_404_NOT_FOUND)
+
+        address.delete()
+        return Response({"detail":"آدرس با موفقیت حذف شد"}, status.HTTP_200_OK)

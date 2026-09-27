@@ -154,7 +154,7 @@ class ArtListView(APIView):
         serializer = ArtSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": "A new category is created"}, status.HTTP_201_CREATED)
+            return Response({"detail": "A new art is created"}, status.HTTP_201_CREATED)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class ArtDetailView(APIView):

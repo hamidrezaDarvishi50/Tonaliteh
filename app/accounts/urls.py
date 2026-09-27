@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import RequestOTPView, VerifyOTPView, ProfileView, LogoutView, FavoriteArtsView
+from .views import *
 
 urlpatterns = [
     path('profile/', ProfileView.as_view(), name='Profile'),
@@ -10,5 +10,8 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     
     path("favorites/", FavoriteArtsView.as_view(), name="favorites"),
-    path("favorites/<slug:slug>/", FavoriteArtsView.as_view(), name="favorite-art")
+    path("favorites/<slug:slug>/", FavoriteArtsView.as_view(), name="favorite-art"),
+    
+    path("addresses/", AddressView.as_view(), name="addresses"),
+    path("addresses/<int:pk>/", AddressDetailView.as_view(), name="address-detail"),
 ]
