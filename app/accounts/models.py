@@ -53,3 +53,4 @@ class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
     address = models.TextField()
     postal_code = models.CharField(max_length=10)
+    

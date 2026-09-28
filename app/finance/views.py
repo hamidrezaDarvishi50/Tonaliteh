@@ -11,7 +11,6 @@ from .models import PriceBase, DiscountCode
 
 from accounts.authentication import user_authenticate
 
-
 class PriceBaseView(APIView):
     
     def get(self, request:Request):
@@ -46,8 +45,6 @@ class PriceBaseView(APIView):
             price_base.save()
 
         return Response({"detail": "Price bases updated successfully."}, status.HTTP_200_OK)
-    
-
 
 class DiscountCodeListView(APIView):
     
@@ -70,8 +67,7 @@ class DiscountCodeListView(APIView):
             serializer.save()
             return Response({"detail":"کد تخفیف جدید ساخته شد"}, status.HTTP_201_CREATED)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-        
-        
+
 class DiscountCodeDetailView(APIView):
     
     def get_object(self, pk):
@@ -79,7 +75,6 @@ class DiscountCodeDetailView(APIView):
             return DiscountCode.objects.get(pk=pk)
         except DiscountCode.DoesNotExist:
             return None
-
         
     def get(self, request:Request, pk):
         user = user_authenticate(request)
