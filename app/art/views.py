@@ -10,7 +10,11 @@ from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
 
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ArtFilter
+
 class ArtistListView(APIView):
+    
     def get(self, request: Request):
         artists = Artist.objects.all()
         serializer = ArtistSerializer(artists, many=True)
@@ -140,6 +144,10 @@ class CategoryDetailView(APIView):
 
 
 class ArtListView(APIView):
+    
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ArtFilter
+    
     def get(self, request: Request):
         arts = Art.objects.all()
         serializer = ArtSerializer(arts, many=True)
@@ -337,3 +345,42 @@ class PassepartoutDetailView(APIView):
 
         passepartout.delete()
         return Response({"detail": "پاسپارتو با موفقیت حذف شد"}, status.HTTP_200_OK)
+    
+
+class SearchView(APIView):
+
+    def get(self, request: Request):
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response([], status.HTTP_200_OK)
+
+        artists = Artist.objects.filter(name__icontains=query)[:5]
+        categories = Category.objects.filter(name__icontains=query)[:5]
+        arts = Art.objects.filter(name__icontains=query).select_related("artist", "category")[:5]
+
+        results = []
+
+        for artist in artists:
+            results.append({
+                "type": "artist",
+                "title": artist.name,
+                "slug": artist.slug,
+            })
+
+        for category in categories:
+            results.append({
+                "type": "category",
+                "title": category.name,
+                "slug": category.slug,
+            })
+
+        for art in arts:
+            results.append({
+                "type": "art",
+                "title": art.name,
+                "slug": art.slug,
+                "image": art.image.url if art.image else None,
+            })
+
+        return Response(results, status.HTTP_200_OK)
+

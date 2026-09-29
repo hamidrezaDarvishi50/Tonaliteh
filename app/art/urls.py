@@ -15,5 +15,7 @@ urlpatterns = [
     path("frame/<int:pk>/", FrameDetailView.as_view()),
     
     path("passepartout/", PassepartoutListView.as_view(), name="passepartouts"),
-    path("passepartout/<int:pk>/", PassepartoutDetailView.as_view())
+    path("passepartout/<int:pk>/", PassepartoutDetailView.as_view()),
+    
+    path("search/", SearchView.as_view()),
 ]
