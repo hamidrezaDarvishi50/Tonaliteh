@@ -12,7 +12,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-
+    discount_code = serializers.SlugRelatedField(slug_field="code", read_only=True)    
+    
     class Meta:
         model = Order
         fields = [
@@ -20,7 +21,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "items_price", "shipping_price", "discount_amount", "total_price",
             "items", "created_at", "updated_at", "paid_at", "cancelled_at",
         ]
-        read_only_fields = [f for f in fields if f not in ("address", "destination", "discount_code")]
+        read_only_fields = fields
 
 class OrderCreateSerializer(serializers.Serializer):
     address = serializers.IntegerField()

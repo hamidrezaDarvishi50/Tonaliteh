@@ -46,7 +46,7 @@ class OrderListCreateView(APIView):
         except ValueError as e:
             return Response({"detail": str(e)}, status.HTTP_400_BAD_REQUEST)
 
-        return Response(OrderSerializer(order).data, status.HTTP_201_CREATED)
+        return Response({"detail":"سبد سفارشات جدید با موفقیت ایجاد شد"}, status.HTTP_201_CREATED)
 
 
 class OrderDetailView(APIView):
@@ -58,7 +58,8 @@ class OrderDetailView(APIView):
         except Order.DoesNotExist:
             return Response({"detail": "سفارش پیدا نشد"}, status.HTTP_404_NOT_FOUND)
 
-        return Response(OrderSerializer(order).data)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 class OrderCancelView(APIView):
@@ -75,7 +76,7 @@ class OrderCancelView(APIView):
         except ValueError as e:
             return Response({"detail": str(e)}, status.HTTP_400_BAD_REQUEST)
 
-        return Response(OrderSerializer(order).data)
+        return Response({"detail":"سفارش لغو شد"}, status.HTTP_200_OK)
 
 
 class DiscountCodeCheckView(APIView):

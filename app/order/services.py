@@ -42,11 +42,15 @@ def calculate_discount_amount(discount, items_price):
     if discount.type == DiscountCode.DiscountType.PERCENTAGE:
         return items_price * discount.amount // 100
     else:
-        return items_price - discount.amount
+        return discount.amount
 
 
 @transaction.atomic
 def create_order_from_cart(user, address_id, destination, discount_code_str=None):
+    
+    if Order.objects.filter(user=user, status=Order.Status.PENDING).exists():
+        raise ValueError("شما یک سفارش در انتظار پرداخت دارید")
+
     cart = Cart.objects.select_for_update().filter(user=user).first()
     if cart is None or not cart.items.exists():
         raise ValueError("سبد خرید شما خالی است")
