@@ -17,5 +17,10 @@ urlpatterns = [
     path("passepartout/", PassepartoutListView.as_view(), name="passepartouts"),
     path("passepartout/<int:pk>/", PassepartoutDetailView.as_view()),
     
+    path("tags/", TagListView.as_view()),
+    path("tags/<int:pk>/", TagDetailView.as_view()),
+    
     path("search/", SearchView.as_view()),
+    path("arts/search/", ArtSearchView.as_view()),
+    path("arts/filter-options/", ArtFilterOptionsView.as_view()),
 ]

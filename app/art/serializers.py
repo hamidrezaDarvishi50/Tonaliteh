@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from .models import Art, Artist, Category, Frame, Passepartout
+from .models import *
 
 class ArtSerializer(serializers.ModelSerializer):
     artist = serializers.SlugRelatedField(slug_field='name', queryset=Artist.objects.all())
-    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
+    category = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Category.objects.all())
     
     class Meta:
         model = Art
@@ -68,3 +68,8 @@ class PassepartoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Passepartout
         fields = ['id', 'distance']
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "type", "name"]

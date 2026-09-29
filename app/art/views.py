@@ -11,7 +11,8 @@ from .serializers import *
 from accounts.authentication import user_authenticate
 
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ArtFilter
+from .filters import ArtFilter, search_arts
+
 
 class ArtistListView(APIView):
     
@@ -345,10 +346,70 @@ class PassepartoutDetailView(APIView):
 
         passepartout.delete()
         return Response({"detail": "پاسپارتو با موفقیت حذف شد"}, status.HTTP_200_OK)
-    
+
+class TagListView(APIView):
+
+    def get(self, request: Request):
+        tags = Tag.objects.all()
+
+        tag_type = request.query_params.get("type")
+        if tag_type:
+            tags = tags.filter(type=tag_type)
+
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request: Request):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        serializer = TagSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
+class TagDetailView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Tag.objects.get(pk=pk)
+        except Tag.DoesNotExist:
+            return None
+
+    def put(self, request: Request, pk):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        tag = self.get_object(pk)
+        if tag is None:
+            return Response({"detail": "تگ پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        serializer = TagSerializer(tag, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request: Request, pk):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        tag = self.get_object(pk)
+        if tag is None:
+            return Response({"detail": "تگ پیدا نشد"}, status.HTTP_404_NOT_FOUND)
+
+        tag.delete()
+        return Response({"detail": "تگ با موفقیت حذف شد"}, status.HTTP_200_OK)
+
+
 
 class SearchView(APIView):
-
+    
     def get(self, request: Request):
         query = request.query_params.get("q", "").strip()
         if not query:
@@ -361,26 +422,49 @@ class SearchView(APIView):
         results = []
 
         for artist in artists:
-            results.append({
-                "type": "artist",
-                "title": artist.name,
-                "slug": artist.slug,
-            })
+            results.append({"type": "artist", "title": artist.name, "slug": artist.slug})
 
         for category in categories:
-            results.append({
-                "type": "category",
-                "title": category.name,
-                "slug": category.slug,
-            })
+            results.append({"type": "category", "title": category.name, "slug": category.slug})
 
         for art in arts:
-            results.append({
-                "type": "art",
-                "title": art.name,
-                "slug": art.slug,
-                "image": art.image.url if art.image else None,
-            })
+            results.append({"type": "art", "title": art.name, "slug": art.slug, "image": art.image.url if art.image else None,})
 
         return Response(results, status.HTTP_200_OK)
+
+class ArtSearchView(APIView):
+
+    def get(self, request: Request):
+        arts = search_arts(request.query_params)
+        serializer = ArtSerializer(arts, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+class ArtFilterOptionsView(APIView):
+
+    def get(self, request: Request):
+        tags_by_type = {}
+        for tag_type, label in Tag.TagType.choices:
+            tags_by_type[tag_type] = list(Tag.objects.filter(type=tag_type).values("id", "name"))
+
+        years = list(
+            Art.objects.exclude(released_year__isnull=True)
+            .values_list("released_year", flat=True)
+            .distinct()
+            .order_by("-released_year")
+        )
+
+        artists = list(Artist.objects.values("id", "name", "slug"))
+
+        shapes = [
+            {"value": "square", "label": "مربع"},
+            {"value": "horizontal", "label": "مستطیل افقی"},
+            {"value": "vertical", "label": "مستطیل عمودی"},
+        ]
+
+        return Response({
+            "tags": tags_by_type,
+            "years": years,
+            "artists": artists,
+            "shapes": shapes,
+        }, status.HTTP_200_OK)
 
