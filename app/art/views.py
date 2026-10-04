@@ -12,7 +12,7 @@ from accounts.authentication import user_authenticate
 
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import search_arts
-
+from django.db.models import Q
 
 class ArtistListView(APIView):
     
@@ -408,20 +408,27 @@ class SearchView(APIView):
         if not query:
             return Response([], status.HTTP_200_OK)
 
-        artists = Artist.objects.filter(name__icontains=query)[:5]
-        categories = Category.objects.filter(name__icontains=query)[:5]
-        arts = Art.objects.filter(name__icontains=query)[:5]
+        artists = Artist.objects.filter(Q(name__icontains=query) | Q(persian_name__icontains=query))[:5]
+        categories = Category.objects.filter(Q(name__icontains=query) | Q(persian_name__icontains=query))[:5]
+        arts = Art.objects.filter(Q(name__icontains=query) | Q(persian_name__icontains=query))[:5]
 
         results = []
 
         for artist in artists:
-            results.append({"type": "artist", "title": artist.name, "slug": artist.slug})
+            results.append({"type": "artist", 
+                            "title": artist.name or artist.persian_name, 
+                            "slug": artist.slug})
 
         for category in categories:
-            results.append({"type": "category", "title": category.name, "slug": category.slug})
+            results.append({"type": "category", 
+                            "title": category.name or artist.persian_name, 
+                            "slug": category.slug})
 
         for art in arts:
-            results.append({"type": "art", "title": art.name, "slug": art.slug, "image": art.image.url if art.image else None,})
+            results.append({"type": "art", 
+                            "title": art.name or artist.persian_name, 
+                            "slug": art.slug, 
+                            "image": art.image.url if art.image else None,})
 
         return Response(results, status.HTTP_200_OK)
 
