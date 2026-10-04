@@ -10,7 +10,6 @@ from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
 
-from django_filters.rest_framework import DjangoFilterBackend
 from .filters import search_arts
 from django.db.models import Q
 
@@ -26,7 +25,7 @@ class ArtistListView(APIView):
         user = user_authenticate(request)
 
         if not user.is_staff:
-            return Response({"detail": "Admin access required."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
             
         serializer = ArtistSerializer(data=request.data)
         if serializer.is_valid():
