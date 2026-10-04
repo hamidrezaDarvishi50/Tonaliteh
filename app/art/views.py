@@ -11,7 +11,7 @@ from .serializers import *
 from accounts.authentication import user_authenticate
 
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ArtFilter, search_arts
+from .filters import search_arts
 
 
 class ArtistListView(APIView):
@@ -145,9 +145,6 @@ class CategoryDetailView(APIView):
 
 
 class ArtListView(APIView):
-    
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ArtFilter
     
     def get(self, request: Request):
         arts = Art.objects.all()
@@ -352,10 +349,6 @@ class TagListView(APIView):
     def get(self, request: Request):
         tags = Tag.objects.all()
 
-        tag_type = request.query_params.get("type")
-        if tag_type:
-            tags = tags.filter(type=tag_type)
-
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 
@@ -407,7 +400,7 @@ class TagDetailView(APIView):
         return Response({"detail": "تگ با موفقیت حذف شد"}, status.HTTP_200_OK)
 
 
-
+# search box
 class SearchView(APIView):
     
     def get(self, request: Request):
@@ -417,7 +410,7 @@ class SearchView(APIView):
 
         artists = Artist.objects.filter(name__icontains=query)[:5]
         categories = Category.objects.filter(name__icontains=query)[:5]
-        arts = Art.objects.filter(name__icontains=query).select_related("artist", "category")[:5]
+        arts = Art.objects.filter(name__icontains=query)[:5]
 
         results = []
 
@@ -435,7 +428,10 @@ class SearchView(APIView):
 class ArtSearchView(APIView):
 
     def get(self, request: Request):
+        print(request.query_params)
         arts = search_arts(request.query_params)
+        print(arts.query)
+        
         serializer = ArtSerializer(arts, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 

@@ -5,10 +5,15 @@ from .models import *
 class ArtSerializer(serializers.ModelSerializer):
     artist = serializers.SlugRelatedField(slug_field='name', queryset=Artist.objects.all())
     category = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Category.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
     
     class Meta:
         model = Art
-        fields = ['id', 'artist', 'category', 'name', 'slug', 'image', 'width', 'height', 'released_year', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'slug', 'persian_name',
+                'artist', 'category', 'tags',
+                'image', 'voice', 'second_voice',
+                'width', 'height', 'released_year',
+                'created_at', 'updated_at']
         read_only_fields = ['slug']
 
 class ArtDetailSerializer(serializers.ModelSerializer):
@@ -73,3 +78,4 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["id", "type", "name"]
+

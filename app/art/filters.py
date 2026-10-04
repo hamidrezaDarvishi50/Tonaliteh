@@ -1,15 +1,5 @@
-import django_filters
 from django.db.models import Case, When, Value, CharField, F
 from .models import Art, Tag
-
-class ArtFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = Art
-        fields = [
-            "artist",
-            "category",
-        ]
 
 def annotate_shape(queryset):
     return queryset.annotate(
