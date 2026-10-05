@@ -9,9 +9,14 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
+from rest_framework.pagination import PageNumberPagination
+
+class BlogPagination(PageNumberPagination):
+    page_size = 15
 
 
 class BlogView(APIView):
+    pagination_class = BlogPagination
     
     def get(self, request:Request):
         blogs = Blog.objects.prefetch_related("faqs", "arts")
