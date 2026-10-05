@@ -21,6 +21,5 @@ urlpatterns = [
     path("tags/<int:pk>/", TagDetailView.as_view()),
     
     path("search/", SearchView.as_view()),
-    path("arts-search/", ArtSearchView.as_view()),
     path("arts-filter-options/", ArtFilterOptionsView.as_view()),
 ]

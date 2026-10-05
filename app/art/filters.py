@@ -1,4 +1,6 @@
-from django.db.models import Case, When, Value, CharField, F
+from django.db.models import Case, When, Value, CharField, F, Sum, Q
+from django.db.models.functions import Coalesce
+
 from .models import Art, Tag
 
 def annotate_shape(queryset):
@@ -41,3 +43,28 @@ def search_arts(query_params):
         arts = arts.filter(shape=shape)
 
     return arts
+
+# sort functions
+def annotate_sold_quantity(queryset):
+    from order.models import Order
+
+    return queryset.annotate(
+        sold_quantity=Coalesce(
+            Sum(
+                "order_items__quantity",
+                filter=Q(order_items__order__status__in=[
+                    Order.Status.PAID,
+                    Order.Status.SHIPPED,
+                    Order.Status.COMPLETED,
+                ])
+            ),
+            Value(0)
+        )
+    )
+
+def sort_arts(queryset, sort_param):
+    if sort_param == "newest":
+        return queryset.order_by("-created_at")
+    if sort_param == "best_selling":
+        return annotate_sold_quantity(queryset).order_by("-sold_quantity")
+    return queryset

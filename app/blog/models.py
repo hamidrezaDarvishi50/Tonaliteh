@@ -15,7 +15,7 @@ class Blog(models.Model):
     short_description = models.TextField()
     final_description = models.TextField()
 
-    main_image = models.ImageField(upload_to="blogs/")
+    main_image = models.ImageField(upload_to="blogs/", null=True)
 
     arts = models.ManyToManyField(Art, related_name="blogs", blank=True)
 

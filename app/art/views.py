@@ -10,7 +10,7 @@ from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
 
-from .filters import search_arts
+from .filters import *
 from django.db.models import Q
 
 class ArtistListView(APIView):
@@ -146,13 +146,13 @@ class CategoryDetailView(APIView):
 class ArtListView(APIView):
     
     def get(self, request: Request):
-        arts = Art.objects.all()
+        arts = search_arts(request.query_params)
+        arts = sort_arts(arts, request.query_params.get("sort"))
         serializer = ArtSerializer(arts, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
-            
+        
     def post(self, request: Request):
         user = user_authenticate(request)
-        
         if not user.is_staff:
             return Response({"detail": "Admin access required"}, status.HTTP_403_FORBIDDEN)
 
@@ -430,16 +430,6 @@ class SearchView(APIView):
                             "image": art.image.url if art.image else None,})
 
         return Response(results, status.HTTP_200_OK)
-
-class ArtSearchView(APIView):
-
-    def get(self, request: Request):
-        print(request.query_params)
-        arts = search_arts(request.query_params)
-        print(arts.query)
-        
-        serializer = ArtSerializer(arts, many=True)
-        return Response(serializer.data, status.HTTP_200_OK)
 
 class ArtFilterOptionsView(APIView):
 
