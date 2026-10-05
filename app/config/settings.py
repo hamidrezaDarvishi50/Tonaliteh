@@ -183,7 +183,6 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Tonaliteh APi',
     'DESCRIPTION': 'Yasamin salam be to az door az tarafe aria va sina va man',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 MEDIA_ROOT = BASE_DIR / "media"

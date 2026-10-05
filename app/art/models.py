@@ -19,6 +19,8 @@ class Artist(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(max_length=255, default="")
     
+    blog = models.TextField(default="")
+    
     image = models.ImageField(upload_to="artists/", blank=True, null=True)
     banner_image = models.ImageField(upload_to="artists/", blank=True, null=True)
     
@@ -75,6 +77,8 @@ class Art(models.Model):
     title = models.TextField(max_length=255, default="")
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(max_length=255, default="")
+    
+    blog = models.TextField(default="")
     
     image = models.ImageField(upload_to="arts/")
     voice = models.FileField(upload_to="arts/voices/", blank=True, null=True)

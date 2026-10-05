@@ -415,17 +415,20 @@ class SearchView(APIView):
 
         for artist in artists:
             results.append({"type": "artist", 
-                            "title": artist.name or artist.persian_name, 
+                            "name": artist.name,
+                            "persian_name": artist.persian_name, 
                             "slug": artist.slug})
 
         for category in categories:
             results.append({"type": "category", 
-                            "title": category.name or artist.persian_name, 
+                            "name": category.name,
+                            "persian_name": artist.persian_name, 
                             "slug": category.slug})
 
         for art in arts:
             results.append({"type": "art", 
-                            "title": art.name or artist.persian_name, 
+                            "name": art.name,
+                            "persian_name": artist.persian_name, 
                             "slug": art.slug, 
                             "image": art.image.url if art.image else None,})
 

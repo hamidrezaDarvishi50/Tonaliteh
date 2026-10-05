@@ -29,7 +29,7 @@ class ArtSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Art
-        fields = ['id', 'name', 'slug', 'persian_name', 'title', 'description',
+        fields = ['id', 'name', 'slug', 'persian_name', 'title', 'description', 'blog',
                 'artist', 'category', 'tags',
                 'image', 'voice', 'second_voice',
                 'width', 'height', 'released_year',
@@ -53,7 +53,7 @@ class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields = ['id', 'name', 'persian_name',
-                'title', 'description' 'slug', 'order',
+                'title', 'description', 'slug', 'order', 'blog',
                 'image', 'banner_image',
                 'banner1', 'banner2', 'head1', 'head2',
                 'created_at', 'updated_at']
@@ -63,7 +63,7 @@ class ArtistِDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Artist
-        fields = ['id', 'name', 'slug', 'bio', 'image', 'created_at','arts']
+        fields = ['id', 'name', 'slug', 'image', 'created_at','arts']
         
 
 class CategorySerializer(serializers.ModelSerializer):
