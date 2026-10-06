@@ -22,4 +22,7 @@ urlpatterns = [
     
     path("search/", SearchView.as_view()),
     path("arts-filter-options/", ArtFilterOptionsView.as_view()),
+    
+    path("arts-backup/", ArtBackupView.as_view()),
+    path("artists-backup/", ArtistBackupView.as_view()),
 ]

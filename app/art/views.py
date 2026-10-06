@@ -14,6 +14,8 @@ from .filters import *
 from django.db.models import Q
 
 from drf_spectacular.utils import extend_schema
+from .services import export_arts_backup, export_artists_backup
+from drf_spectacular.types import OpenApiTypes
 
 class ArtistListView(APIView):
     
@@ -619,3 +621,30 @@ class ArtFilterOptionsView(APIView):
             "shapes": shapes,
         }, status.HTTP_200_OK)
 
+
+class ArtBackupView(APIView):
+
+    @extend_schema(
+        responses={
+            200: OpenApiTypes.BINARY,
+            403: {"type": "object"},})
+    def get(self, request: Request):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        return export_arts_backup()
+
+
+class ArtistBackupView(APIView):
+
+    @extend_schema(
+        responses={
+            200: OpenApiTypes.BINARY    ,
+            403: {"type": "object"},})
+    def get(self, request: Request):
+        user = user_authenticate(request)
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        return export_artists_backup()
