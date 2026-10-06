@@ -9,14 +9,23 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
+from drf_spectacular.utils import extend_schema
 
 class BackgroundImageListView(APIView):
 
+    @extend_schema(
+        responses={200: BackgroundImageSerializer(many=True),})
     def get(self, request: Request):
         backgrounds = BackgroundImage.objects.all().order_by('-created_at')
         serializer = BackgroundImageSerializer(backgrounds, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 
+    @extend_schema(
+        request=BackgroundImageSerializer,
+        responses={
+            201: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},})
     def post(self, request: Request):
         user = user_authenticate(request)
 
@@ -30,6 +39,12 @@ class BackgroundImageListView(APIView):
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        request={"type": "object"},
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},})
     def delete(self, request: Request):
         user = user_authenticate(request)
 
@@ -56,6 +71,10 @@ class BackgroundImageDetailView(APIView):
         except BackgroundImage.DoesNotExist:
             return None
 
+    @extend_schema(
+        responses={
+            200: BackgroundImageSerializer,
+            404: {"type": "object"},})
     def get(self, request: Request, pk):
         background = self.get_object(pk)
 
@@ -66,6 +85,11 @@ class BackgroundImageDetailView(APIView):
 
         return Response(serializer.data, status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def delete(self, request: Request, pk):
         user = user_authenticate(request)
 

@@ -8,9 +8,12 @@ from .serializers import CartSerializer, CartItemSerializer
 
 from accounts.authentication import user_authenticate
 from .services import calculate_art_price, refresh_cart, get_price_bases
+from drf_spectacular.utils import extend_schema
 
 class CartView(APIView):
 
+    @extend_schema(
+        responses={200: CartSerializer,})
     def get(self, request:Request):
         user = user_authenticate(request)
         cart, _ = Cart.objects.get_or_create(user=user)
@@ -19,7 +22,14 @@ class CartView(APIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 class CartItemView(APIView):
-
+    
+    @extend_schema(
+        request=CartItemSerializer,
+        responses={
+            201: CartItemSerializer,
+            200: CartItemSerializer,
+            401: {"type": "object"},
+            400: {"type": "object"},})
     def post(self, request):
         user = user_authenticate(request)
 
@@ -56,6 +66,11 @@ class CartItemView(APIView):
 
 class CartItemDetailView(APIView):
 
+    @extend_schema(
+        responses={
+            200: CartItemSerializer,
+            401: {"type": "object"},
+            404: {"type": "object"},})
     def get(self, request:Request, pk):
         user = user_authenticate(request)
 
@@ -67,8 +82,13 @@ class CartItemDetailView(APIView):
             return Response({"detail": "Cart item not found."}, status.HTTP_404_NOT_FOUND)
 
         serializer = CartItemSerializer(item)
-        return Response(serializer.data)
+        return Response(serializer.data, status.HTTP_200_OK)
     
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            401: {"type": "object"},
+            404: {"type": "object"},})
     def delete(self, request:Request, pk):
         user = user_authenticate(request)
 
@@ -82,4 +102,4 @@ class CartItemDetailView(APIView):
 
         refresh_cart(cart)
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "موفقیت آمیز بود"}, status.HTTP_200_OK)

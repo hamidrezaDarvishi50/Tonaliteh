@@ -10,9 +10,14 @@ from .serializers import PriceBaseSerializer, DiscountCodeSerializer
 from .models import PriceBase, DiscountCode
 
 from accounts.authentication import user_authenticate
+from drf_spectacular.utils import extend_schema
 
 class PriceBaseView(APIView):
     
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            403: {"type": "object"},})
     def get(self, request:Request):
         
         user = user_authenticate(request)
@@ -28,8 +33,14 @@ class PriceBaseView(APIView):
                 "updated_at": price_base.updated_at}
             for price_base in price_bases}
         
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status.HTTP_200_OK)
     
+    @extend_schema(
+        request=PriceBaseSerializer,
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},})
     def patch(self, request:Request):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -48,6 +59,10 @@ class PriceBaseView(APIView):
 
 class DiscountCodeListView(APIView):
     
+    @extend_schema(
+        responses={
+            200: DiscountCodeSerializer(many=True),
+            403: {"type": "object"},})
     def get(self, request:Request):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -56,7 +71,13 @@ class DiscountCodeListView(APIView):
         discount_codes  = DiscountCode.objects.all()
         serializer = DiscountCodeSerializer(discount_codes, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
-            
+    
+    @extend_schema(
+        request=DiscountCodeSerializer,
+        responses={
+            201: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},})
     def post(self, request:Request):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -75,7 +96,12 @@ class DiscountCodeDetailView(APIView):
             return DiscountCode.objects.get(pk=pk)
         except DiscountCode.DoesNotExist:
             return None
-        
+    
+    @extend_schema(
+        responses={
+            200: DiscountCodeSerializer,
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def get(self, request:Request, pk):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -88,6 +114,13 @@ class DiscountCodeDetailView(APIView):
         serializer = DiscountCodeSerializer(discount_code)
         return Response(serializer.data, status.HTTP_200_OK)
         
+    @extend_schema(
+        request=DiscountCodeSerializer,
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def put(self, request:Request, pk):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -103,7 +136,12 @@ class DiscountCodeDetailView(APIView):
             return Response({"detail":"کد تخفیف با موفقیت ویرایش شد"}, status.HTTP_200_OK)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-            
+
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def delete(self, request:Request, pk):
         user = user_authenticate(request)
         if not user.is_staff:

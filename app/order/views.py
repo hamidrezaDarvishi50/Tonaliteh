@@ -14,10 +14,13 @@ from .serializers import OrderSerializer, OrderCreateSerializer, DiscountCodeChe
 from .services import create_order_from_cart, get_valid_discount_code, calculate_discount_amount
 
 from accounts.authentication import user_authenticate
-
+from drf_spectacular.utils import extend_schema
 
 class OrderListCreateView(APIView):
 
+    @extend_schema(
+        responses={
+            200: OrderSerializer(many=True),})
     def get(self, request: Request):
         user = user_authenticate(request)
         orders = Order.objects.filter(user=user).prefetch_related("items").order_by("-created_at")
@@ -29,6 +32,12 @@ class OrderListCreateView(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 
+    @extend_schema(
+        request=OrderCreateSerializer,
+        responses={
+            201: {"type": "object"},
+            400: {"type": "object"},
+            401: {"type": "object"},})
     def post(self, request: Request):
         user = user_authenticate(request)
 
@@ -51,6 +60,10 @@ class OrderListCreateView(APIView):
 
 class OrderDetailView(APIView):
 
+    @extend_schema(
+        responses={
+            200: OrderSerializer,
+            404: {"type": "object"},})
     def get(self, request: Request, pk):
         user = user_authenticate(request)
         try:
@@ -64,6 +77,12 @@ class OrderDetailView(APIView):
 
 class OrderCancelView(APIView):
 
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            404: {"type": "object"},
+            401: {"type": "object"},})
     def post(self, request: Request, pk):
         user = user_authenticate(request)
         try:
@@ -81,6 +100,12 @@ class OrderCancelView(APIView):
 
 class DiscountCodeCheckView(APIView):
 
+    @extend_schema(
+        request=DiscountCodeCheckSerializer,
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            401: {"type": "object"},})
     def post(self, request: Request):
         user = user_authenticate(request)
         serializer = DiscountCodeCheckSerializer(data=request.data)
@@ -115,6 +140,13 @@ class AdminOrderStatusView(APIView):
         "cancel": "cancel",
     }
 
+    @extend_schema(
+        request={"type": "object"},
+        responses={
+            200: OrderSerializer,
+            400: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def post(self, request: Request, pk):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -134,4 +166,4 @@ class AdminOrderStatusView(APIView):
         except ValueError as e:
             return Response({"detail": str(e)}, status.HTTP_400_BAD_REQUEST)
 
-        return Response(OrderSerializer(order).data)
+        return Response(OrderSerializer(order).data, status.HTTP_200_OK)

@@ -10,19 +10,28 @@ from .models import *
 from .serializers import *
 from accounts.authentication import user_authenticate
 from rest_framework.pagination import PageNumberPagination
+from drf_spectacular.utils import extend_schema
 
 class BlogPagination(PageNumberPagination):
     page_size = 15
 
-
 class BlogView(APIView):
     pagination_class = BlogPagination
     
+    @extend_schema(
+            responses={200: BlogSerializer(many=True),})
     def get(self, request:Request):
         blogs = Blog.objects.prefetch_related("faqs", "arts")
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
     
+    
+    @extend_schema(
+        request=BlogSerializer,
+        responses={
+            201: {"type": "object"},
+            400: {"type": "object"},
+            401: {"type": "object"},})
     def post(self, request:Request):
         
         user = user_authenticate(request)
@@ -44,7 +53,11 @@ class BlogDetailView(APIView):
             return Blog.objects.prefetch_related("faqs", "arts").get(slug=slug)
         except Blog.DoesNotExist:
             return None
-    
+        
+    @extend_schema(
+            responses={
+                200: BlogSerializer,
+                404: {"type": "object"},})
     def get(self, request: Request, slug):
         blog = self.get_object(slug)
         if blog is None:
@@ -53,6 +66,13 @@ class BlogDetailView(APIView):
         serializer = BlogSerializer(blog)
         return Response(serializer.data, status.HTTP_200_OK)
     
+    @extend_schema(
+        request=BlogSerializer,
+        responses={
+            200: {"type": "object"},
+            400: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def put(self, request: Request, slug):
         user = user_authenticate(request)
         if not user.is_staff:
@@ -68,6 +88,11 @@ class BlogDetailView(APIView):
             return Response({"detail": "بلاگ به روز شد"}, status.HTTP_200_OK)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
+    @extend_schema(
+        responses={
+            200: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
     def delete(self, request: Request, slug):
         user = user_authenticate(request)
         if not user.is_staff:
