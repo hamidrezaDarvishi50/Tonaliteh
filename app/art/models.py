@@ -26,7 +26,6 @@ class Artist(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # body = models.TextField(blank=True)
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -95,7 +94,6 @@ class Art(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
 
 class Frame(models.Model):
     title = models.TextField(max_length=255)

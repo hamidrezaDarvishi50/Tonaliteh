@@ -128,7 +128,7 @@ class LogoutView(APIView):
 
 class FavoriteArtsView(APIView):
 
-    extend_schema(
+    @extend_schema(
         responses={
             200: FavoriteArtsSerializer(many=True),
             401: {"type": "object"},})

@@ -7,4 +7,7 @@ urlpatterns = [
     path("<int:pk>/cancel/", OrderCancelView.as_view()),
     path("<int:pk>/admin-status/", AdminOrderStatusView.as_view()),
     path("check-discount/", DiscountCodeCheckView.as_view()),
+        
+    path("admin/", AdminOrderListView.as_view()),
+    path("admin/<int:pk>/", AdminOrderDetailView.as_view()),
 ]

@@ -9,19 +9,16 @@ from art.models import Art
 class UserManager(BaseUserManager):
     
     def create_user(self, phone):
-        # if not phone:
-        #     raise ValueError('فرمت به درستی وارد نشده است، لطفا از اعداد انگلیسی استفاده کنید')
         user = self.model(phone=phone)
-        user.save(using=self._db)
+        user.save()
         return user
     
     def create_superuser(self, phone):
         user = self.create_user(phone=phone)
         user.is_staff = True
         user.is_superuser = True
-        user.save(using=self._db)
+        user.save()
         return user
-        
 
 
 class User(AbstractBaseUser):
@@ -33,8 +30,7 @@ class User(AbstractBaseUser):
     phone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True, null=True)
     
-    favorite_arts = models.ManyToManyField(Art, related_name='favorited_by', blank=True
-)
+    favorite_arts = models.ManyToManyField(Art, related_name='favorited_by', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

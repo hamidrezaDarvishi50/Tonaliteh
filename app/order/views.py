@@ -167,3 +167,55 @@ class AdminOrderStatusView(APIView):
             return Response({"detail": str(e)}, status.HTTP_400_BAD_REQUEST)
 
         return Response(OrderSerializer(order).data, status.HTTP_200_OK)
+
+
+
+class AdminOrderListView(APIView):
+
+    @extend_schema(
+        responses={
+            200: OrderSerializer(many=True),
+            401: {"type": "object"},
+            403: {"type": "object"},})
+    def get(self, request: Request):
+        user = user_authenticate(request)
+
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        orders = Order.objects.select_related("user", "address").prefetch_related("items").order_by("-created_at")
+
+        user_id = request.query_params.get("user_id")
+        status_param = request.query_params.get("status")
+
+        if user_id:
+            orders = orders.filter(user_id=user_id)
+
+        if status_param:
+            orders = orders.filter(status=status_param)
+
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class AdminOrderDetailView(APIView):
+
+    @extend_schema(
+        responses={
+            200: OrderSerializer,
+            401: {"type": "object"},
+            403: {"type": "object"},
+            404: {"type": "object"},})
+    def get(self, request: Request, pk):
+        user = user_authenticate(request)
+
+        if not user.is_staff:
+            return Response({"detail": "Admin access required."}, status.HTTP_403_FORBIDDEN)
+
+        try:
+            order = Order.objects.select_related("user", "address").prefetch_related("items").get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({"detail": "سفارش پیدا نشد"}, status.HTTP_404_NOT_FOUND,)
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status.HTTP_200_OK)

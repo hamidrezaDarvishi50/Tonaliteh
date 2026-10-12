@@ -11,7 +11,6 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "address", "postal_code"]
         read_only_fields = ["id"]
 
-
 class ProfileSerializer(serializers.ModelSerializer):
     addresses = AddressSerializer(many=True, read_only=True)
 

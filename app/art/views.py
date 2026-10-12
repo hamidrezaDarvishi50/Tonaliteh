@@ -571,7 +571,7 @@ class SearchView(APIView):
         results = []
 
         for artist in artists:
-            results.append({"type": "artist", 
+            results.append({"type": "artist",
                             "name": artist.name,
                             "persian_name": artist.persian_name, 
                             "slug": artist.slug})
@@ -579,13 +579,13 @@ class SearchView(APIView):
         for category in categories:
             results.append({"type": "category", 
                             "name": category.name,
-                            "persian_name": artist.persian_name, 
+                            "persian_name": category.persian_name, 
                             "slug": category.slug})
 
         for art in arts:
             results.append({"type": "art", 
                             "name": art.name,
-                            "persian_name": artist.persian_name, 
+                            "persian_name": art.persian_name, 
                             "slug": art.slug, 
                             "image": art.image.url if art.image else None,})
 

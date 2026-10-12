@@ -18,8 +18,7 @@ class DiscountCodeSerializer(serializers.ModelSerializer):
         model = DiscountCode
         fields = ['id', 'type', 'title', 'code', 'expires_at', 'quantity', 'used_count', 'amount', 'created_at', 'updated_at']
 
-        read_only_fields = [
-            'id', 'used_count', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'used_count', 'created_at', 'updated_at']
     
     def validate(self, attrs):
         discount_type = attrs.get('type', getattr(self.instance, 'type', None))
